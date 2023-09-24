@@ -26,23 +26,23 @@ const GlobalSkippedClients = ['ksmserver-logout-greeter', 'plasmashell', 'latte-
 function Config() {
 }
 
-Config.prototype.trigger = function() {
+Config.prototype.trigger = function () {
     var v = readConfig('trigger', 'FullscreenOnly');
     return TriggerValues[v];
 };
 
-Config.prototype.newDesktopPosition = function() {
+Config.prototype.newDesktopPosition = function () {
     var v = readConfig("newDesktopPosition", 'RightMost');
     return NewDesktopPositionValue[v];
 };
 
-Config.prototype.keepNonEmptyDesktop = function() {
+Config.prototype.keepNonEmptyDesktop = function () {
     var v = readConfig("keepNonEmptyDesktop", false);
     // convert to primitive value
     return Boolean.prototype.valueOf(v);
 };
 
-Config.prototype.blockWMClass = function() {
+Config.prototype.blockWMClass = function () {
     var classes = readConfig("blockWMClass", "").toString();
     classes = classes.split(",");
     return classes;
@@ -72,17 +72,17 @@ function State() {
     this.reload();
 }
 
-State.prototype.isTriggeredByFull = function() {
+State.prototype.isTriggeredByFull = function () {
     return this.cachedConfig.trigger === TriggerValues.FullscreenOnly
         || this.cachedConfig.trigger === TriggerValues.FullscreenAndMaximize;
 }
 
-State.prototype.isTriggeredByMax = function() {
+State.prototype.isTriggeredByMax = function () {
     return this.cachedConfig.trigger === TriggerValues.MaximizeOnly
         || this.cachedConfig.trigger === TriggerValues.FullscreenAndMaximize;
 }
 
-State.prototype.isKnownClient = function(client) {
+State.prototype.isKnownClient = function (client) {
     return this.savedDesktops.hasOwnProperty(client.windowId);
 }
 
@@ -113,7 +113,7 @@ State.prototype.getNextDesktop = function (client) {
 }
 
 // If the desktop at pos can be removed
-State.prototype.shouldRemoveDesktop = function(pos) {
+State.prototype.shouldRemoveDesktop = function (pos) {
     if (pos <= 0) {
         return false;
     }
@@ -133,7 +133,7 @@ State.prototype.shouldRemoveDesktop = function(pos) {
     return count == 0;
 };
 
-State.prototype.debugDump = function() {
+State.prototype.debugDump = function () {
     log('');
     log('state: enabled ' + this.enabled);
     log('state: triggerFull ' + this.isTriggeredByFull());
@@ -154,7 +154,7 @@ function Main() {
     var self = this;
 
     this.handlers = {
-        fullscreen: function(client, full) {
+        fullscreen: function (client, full) {
             log('handle fullscreen');
             self.state.debugDump();
             if (!self.state.isTriggeredByFull() || self.state.isSkippedClient(client)) {
@@ -171,7 +171,7 @@ function Main() {
             log('handle fullscreen done');
         },
 
-        maximize: function(client, h, v) {
+        maximize: function (client, h, v) {
             log('handle maximize');
             self.state.debugDump();
             if (!self.state.isTriggeredByMax() || self.state.isSkippedClient(client)) {
@@ -187,10 +187,10 @@ function Main() {
             log('handle maximize done');
         },
 
-        added: function(client) {
+        added: function (client) {
             log('handle added');
             var area = workspace.clientArea(KWin.MaximizeArea, client);
-            
+
             // const clause = {
             //     resourceClass: client.resourceClass.toString(),
             //     clientArea: {
@@ -209,13 +209,13 @@ function Main() {
 
             if (isMaximized) {
                 self.handlers.maximize(client, true, true);
-            // } else {
-            //     log('not maximized, skip');
+                // } else {
+                //     log('not maximized, skip');
             }
             log('handle added done');
         },
 
-        closed: function(client) {
+        closed: function (client) {
             log('handle remove');
             self.state.debugDump();
             if (!self.state.isKnownClient(client)) {
@@ -227,7 +227,7 @@ function Main() {
             log('handle remove done');
         },
 
-        createUserActionsMenu: function(client) {
+        createUserActionsMenu: function (client) {
             log("Creating user menu");
             self.state.debugDump();
             return {
@@ -237,7 +237,7 @@ function Main() {
                         text: "Enabled",
                         checkable: true,
                         checked: self.state.enabled,
-                        triggered: function() {
+                        triggered: function () {
                             self.state.enabled = !self.state.enabled;
                             if (self.state.enabled) {
                                 self.install();
@@ -346,7 +346,7 @@ Main.prototype.popDesktop = function (pos) {
     }
 }
 
-Main.prototype.moveToNewDesktop = function(client) {
+Main.prototype.moveToNewDesktop = function (client) {
     this.state.savedDesktops[client.windowId] = client.desktop;
 
     // register the client's windowClosed event
@@ -369,7 +369,7 @@ Main.prototype.moveToNewDesktop = function(client) {
     workspace.activeClient = client;
 }
 
-Main.prototype.moveBack = function(client, removed) {
+Main.prototype.moveBack = function (client, removed) {
     removed = typeof removed !== "undefined" ? removed : false;
 
     if (!this.state.isKnownClient(client)) {
@@ -400,21 +400,21 @@ Main.prototype.moveBack = function(client, removed) {
     this.popDesktop(toRemove);
 }
 
-Main.prototype.install = function() {
+Main.prototype.install = function () {
     workspace.clientFullScreenSet.connect(this.handlers.fullscreen);
     workspace.clientMaximizeSet.connect(this.handlers.maximize);
     workspace.clientAdded.connect(this.handlers.added);
     log("Handler installed");
 }
 
-Main.prototype.uninstall = function() {
-    workspace.clientFullScreenSet.disconnect(this.handlers.fullscreen);
+Main.prototype.uninstall = function () {
+    //workspace.clientFullScreenSet.disconnect(this.handlers.fullscreen);
     workspace.clientMaximizeSet.disconnect(this.handlers.maximize);
     workspace.clientAdded.disconnect(this.handlers.added);
     log("Handler cleared");
 }
 
-Main.prototype.init = function() {
+Main.prototype.init = function () {
     // this.state.debugDump();
     // registerUserActionsMenu(this.handlers.createUserActionsMenu);
     // this.state.debugDump();
