@@ -1,3 +1,20 @@
+#FORKED 
+
+For some reason the original script does not work on wayland
+
+The workspace.clientFullScreenSet event is never sent for most of the windows.
+(Strangely it works with chrome going fullscreen)
+
+Instead when a new client is added, connect to its client.fullScreenChanged event
+
+No idea about consequences other than it works. 
+Probably since it adds handler for each window rather than workspace, 
+so might be memory heavy.
+
+Did not bother to disconnect, so not sure if this leaks!!! :D
+
+VERY VERY HACKY solution. Use at your own risk.
+
 # kwin-maxmize-to-new-desktop
 
 KWin script that moves fullscreened window to a new virtual desktop, emulating macOS like maximize to new desktop.
