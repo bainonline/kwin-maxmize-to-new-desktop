@@ -212,6 +212,23 @@ function Main() {
                 // } else {
                 //     log('not maximized, skip');
             }
+            client.fullScreenChanged.connect(function () {
+                full = client.fullScreen;
+                self.state.debugDump();
+                if (!self.state.isTriggeredByFull() || self.state.isSkippedClient(client)) {
+                    log('handle fullscreen return');
+                    return;
+                }
+                if (full) {
+                    log("moving to new desktop:" + client.caption)
+                    self.moveToNewDesktop(client);
+                } else {
+                    log("moving back: " + client.caption);
+                    self.moveBack(client);
+                }
+                self.state.debugDump();
+            });
+
             log('handle added done');
         },
 
