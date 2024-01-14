@@ -83,7 +83,7 @@ State.prototype.isTriggeredByMax = function () {
 }
 
 State.prototype.isKnownClient = function (client) {
-    return this.savedDesktops.hasOwnProperty(client.windowId);
+    return this.savedDesktops.hasOwnProperty(client.caption);
 }
 
 State.prototype.isSkippedClient = function (client) {
@@ -364,7 +364,9 @@ Main.prototype.popDesktop = function (pos) {
 }
 
 Main.prototype.moveToNewDesktop = function (client) {
-    this.state.savedDesktops[client.windowId] = client.desktop;
+
+    log("Client window id " + client.caption)
+    this.state.savedDesktops[client.caption] = client.desktop;
 
     // register the client's windowClosed event
     // we cannot use the global clientRemoved event, which is called
@@ -375,7 +377,7 @@ Main.prototype.moveToNewDesktop = function (client) {
     // [1]: https://bugs.kde.org/show_bug.cgi?id=449181
     // See also: issue #14
     var handler = this.handlers.closed.bind(null, client);
-    this.state.savedHandlers[client.windowId] = handler;
+    this.state.savedHandlers[client.caption] = handler;
     client.windowClosed.connect(handler);
 
     var next = this.state.getNextDesktop(client);
@@ -395,11 +397,11 @@ Main.prototype.moveBack = function (client, removed) {
     }
 
     log("inside moving back: " + client.caption);
-    var saved = this.state.savedDesktops[client.windowId];
-    delete this.state.savedDesktops[client.windowId];
+    var saved = this.state.savedDesktops[client.caption];
+    delete this.state.savedDesktops[client.caption];
 
-    var handler = this.state.savedHandlers[client.windowId];
-    delete this.state.savedHandlers[client.windowId];
+    var handler = this.state.savedHandlers[client.caption];
+    delete this.state.savedHandlers[client.caption];
 
     // unregister the client's windowClosed event
     client.windowClosed.disconnect(handler);
